@@ -1,0 +1,3 @@
+resources:
+- gitdocs-deployment.yaml
+- nginx-configmap.yaml

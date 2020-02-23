@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: blog
+  template:
+    metadata:
+      labels:
+        name: blog
+    spec:
+      securityContext:
+        fsGroup: 65534
+      containers:
+      - name: git-sync
+        image: k8s.gcr.io/git-sync:v3.1.5
+        volumeMounts:
+        - name: markdown
+          mountPath: /tmp/git
+        env:
+        - name: GIT_SYNC_REPO
+          value: https://github.com/sourcethemes/academic-kickstart.git
+#          value: https://github.com/kubernetes/website.git
+        - name: GIT_SYNC_DEST
+          value: git-sync
+        - name: GIT_SYNC_WAIT
+          value: "30"
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 65533
+          runAsGroup: 65534
+##########################
+      - name: hugo
+        image: klakegg/hugo:0.65.2-ext-alpine
+        volumeMounts:
+        - name: markdown
+          mountPath: /src
+        - name: html
+          mountPath: /target
+        command: ["/bin/sh","-c"]
+        args: ["while [ ! -f /src/git-sync/config.toml ]; do echo 'No Config' && sleep 1; done && hugo --watch --source=/src/git-sync/ --cleanDestinationDir"]
+        securityContext:
+          allowPrivilegeEscalation: false
+          # TODO: CREATE A HUGO BUILD THAT DOESN'T RUN AS ROOT
+          runAsGroup: 65534
+#######################
+      - name: nginx
+#        image: nginx
+        image: nginxinc/nginx-unprivileged
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+        - name: nginx-conf
+          mountPath: /etc/nginx/nginx.conf # mount nginx-conf volume to /etc/nginx
+          subPath: nginx.conf
+          readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 65533
+          runAsGroup: 65534
+######################
+      volumes:
+      - name: markdown
+        emptyDir: {}
+      - name: html
+        emptyDir: {}
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf # place ConfigMap `nginx-conf` on /etc/nginx
+          items:
+            - key: nginx.conf
+              path: nginx.conf
