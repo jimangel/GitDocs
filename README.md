@@ -1,9 +1,9 @@
 # GitDocs
 A GitOps approach for hosting self-updating docs on Kubernetes - similar to Netlify.
 
-With GitDocs you can create markdown documents in a central git repository and easily access them on any Kubernetes cluster. The documents will self-update as changes are detected in the git repo.
+With GitDocs you can create markdown documents in a central git repository and easily access them on a Kubernetes cluster. The documents will self-update as changes are detected in the git repo.
 
-GitDocs is not an application, it is the "glue" between 3 microservices ([git-sync](https://github.com/kubernetes/git-sync), [hugo](https://gohugo.io), [nginx](https://www.nginx.com)) that gain super powers when ran in a pod on Kubernetes.
+GitDocs is not an application, it is the "glue" between 3 microservices ([git-sync](https://github.com/kubernetes/git-sync), [hugo](https://gohugo.io), [nginx](https://www.nginx.com)) that gains superpowers when ran in a pod on Kubernetes.
 
 ![](https://i.imgur.com/VIe32Ai.png)
 
