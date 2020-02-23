@@ -18,8 +18,8 @@ GitDocs is designed to run anywhere, including on-prem, and supports private or 
 
 1) Clone repo
     ```
-    git clone https://github.com/jimangel/gitdocs
-    cd gitdocs
+    git clone https://github.com/jimangel/GitDocs
+    cd GitDocs
     ```
 1) Apply the configmap and deployment
 
