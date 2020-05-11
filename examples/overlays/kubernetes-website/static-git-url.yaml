@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitdocs
+spec:
+  template:
+    spec:
+      containers:
+      - name: git-sync
+        env:
+        - name: GIT_SYNC_REPO
+          value: https://github.com/kubernetes/website.git

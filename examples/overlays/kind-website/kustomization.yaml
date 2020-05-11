@@ -1,0 +1,7 @@
+bases:
+- ../../base
+images:
+- name: klakegg/hugo
+  newTag: 0.60.0-ext-alpine
+patchesStrategicMerge:
+- static-git-url.yaml

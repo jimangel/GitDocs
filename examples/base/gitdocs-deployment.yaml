@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: blog
+  name: gitdocs
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: blog
+      name: gitdocs
   template:
     metadata:
       labels:
-        name: blog
+        name: gitdocs
     spec:
       securityContext:
         fsGroup: 65534
       containers:
       - name: git-sync
-        image: k8s.gcr.io/git-sync:v3.1.5
+        image: k8s.gcr.io/git-sync:v3.1.6
         volumeMounts:
         - name: markdown
           mountPath: /tmp/git
@@ -34,14 +34,14 @@ spec:
           runAsGroup: 65534
 ##########################
       - name: hugo
-        image: klakegg/hugo:0.65.2-ext-alpine
+        image: klakegg/hugo:0.70.0-ext-alpine
         volumeMounts:
         - name: markdown
           mountPath: /src
         - name: html
           mountPath: /target
         command: ["/bin/sh","-c"]
-        args: ["while [ ! -f /src/git-sync/config.toml ]; do echo 'No Config' && sleep 1; done && hugo --watch --source=/src/git-sync/ --cleanDestinationDir"]
+        args: ["while [ ! $(ls /src/git-sync/config*) ]; do echo 'No Config' && sleep 1; done && hugo --watch --source=/src/git-sync/ --cleanDestinationDir"]
         securityContext:
           allowPrivilegeEscalation: false
           # TODO: CREATE A HUGO BUILD THAT DOESN'T RUN AS ROOT

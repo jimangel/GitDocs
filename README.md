@@ -17,10 +17,12 @@ GitDocs is designed to run anywhere, including on-prem, and supports private or 
 ## Quick start
 
 1) Clone repo
+
     ```
     git clone https://github.com/jimangel/GitDocs
     cd GitDocs
     ```
+
 1) Apply the configmap and deployment
 
     The nginx.conf is created as a separate configmap to allow you to tweak any settings.
@@ -31,15 +33,131 @@ GitDocs is designed to run anywhere, including on-prem, and supports private or 
     ```
 
 1) Use kubectl proxy to preview
+
     ```
-    kubectl port-forward deployment/blog 80:8080
+    sudo kubectl port-forward deployment/gitdocs 80:8080
     ```
 
     Open a browser to http://localhost and browse.
 
+## Clean up
+
+```
+kubectl delete -f examples/base/nginx-configmap.yaml
+kubectl delete -f examples/base/gitdocs-deployment.yaml
+```
+
 ## Going further
 
 Ingress strategies have been purposely excluded from getting started. From here you can create your own ingress and TLS strategy. Also, by abstracting the nginx config, you could always provide the SSL configuration to the pod.
+
+## Deploy  with kustomize
+
+Kustomize is a manifest generator that is build in to `kubectl` since version 1.14. If you're not familiar with Kustomize, please understand the following:
+
+- `example/base` is where the entire deployment lives. You can take those files out and hand modify to deploy if you wanted (please don't).
+- `example/overlays/...` is where any CHANGES live. This way, kustomize will merge the changes with the core documents before deploying.
+- You can have as many different `overlays` as you'd like while sharing the same `base`
+
+### Deploy the official [Kubernetes docs](https://github.com/kubernetes/website)
+
+```
+kubectl apply -k examples/overlays/kubernetes-website
+sudo kubectl port-forward deployment/gitdocs 80:8080
+kubectl delete -k examples/overlays/kubernetes-website
+
+```
+
+### Deploy the official [KinD docs](https://github.com/kubernetes-sigs/kind)
+
+```
+kubectl apply -k examples/overlays/kind-website
+sudo kubectl port-forward deployment/gitdocs 80:8080
+kubectl delete -k examples/overlays/kind-website
+```
+
+### Deploy a private repo via SSH
+
+1) Generate an SSH keypair
+    ```
+    ssh-keygen -f /home/<USERNAME>/git-docs-ssh
+    ```
+
+1) Add public key to git repo (from the GUI)
+
+    This setting is usually in **Repository settings** > **Deploy** or **Access** keys)
+
+    ```
+    cat /home/<USERNAME>/git-docs-ssh.pub
+    ```
+
+1) Test SSH access to repository manually first
+
+    ```
+    # add to your SSH keys
+    ssh-add ~/git-docs-ssh
+    
+    # clone repo using SSH (should NOT prompt for password)
+    git clone git@<GIT REPO>:<REPO PATH>.git
+    ```
+
+1) Create SSH key as Kubernetes secret
+
+    ```
+    kubectl create secret generic git-docs-ssh-key --from-file=ssh=/home/<USERNAME>/git-docs-ssh
+    ```
+
+1) Edit REPO URL in `static-git-url.yaml` deployment patch.
+
+    ```
+    vi examples/overlays/private-repo/static-git-url.yaml   
+    
+    #env:
+    #- name: GIT_SYNC_REPO
+    #  value: "git@<GIT REPO>:<REPO PATH>.git"
+    ```
+
+1) Deploy private-repo overlay
+
+    ```
+    kubectl apply -k examples/overlays/private-repo
+    sudo kubectl port-forward deployment/gitdocs 80:8080
+    kubectl delete -k examples/overlays/private-repo
+    ```
+
+## Troubleshooting
+
+```
+## general ##
+# EVENTS: kubectl get events -n <NAMESPACE>
+
+POD=$(kubectl get pod -l name=gitdocs -o jsonpath="{.items[0].metadata.name}")
+
+## git-sync ##
+# LOGS: kubectl logs -f $POD -c git-sync
+# EXEC: kubectl exec -it $POD -c git-sync -- /bin/sh
+# DOCKER: docker run --rm -it \
+    -v /tmp/git-data:/tmp/git --entrypoint /bin/sh \
+    k8s.gcr.io/git-sync:v3.1.5
+
+## hugo ##
+# LOGS: kubectl logs -f $POD -c hugo
+# EXEC: kubectl exec -it $POD -c hugo -- /bin/sh
+# DOCKER: docker run --rm -it \
+    -v /tmp/git-data:/tmp/git --entrypoint /bin/sh \
+    klakegg/hugo:0.65.2-ext-alpine
+    
+## nginx ##
+# LOGS: kubectl logs -f $POD -c nginx
+# EXEC: kubectl exec -it $POD -c nginx -- /bin/sh
+# CONFIG: kubectl edit cm nginx-conf -o yaml
+```
+
+## Change version of hugo
+
+If using kustomize (see [example overlays](examples/overlays/)) change the tag using kustomize's `newTag` attribute in `kustomization.yaml`
+
+Alternately change the hugo image tag in `examples/base/gitdocs-deployment.yaml`. For example: klakegg/hugo:**0.65.2**-ext-alpine. More info: https://github.com/klakegg/docker-hugo
 
 ## TODOs:
 
@@ -50,67 +168,6 @@ Priority #1: Security
 
 Priority #2: Makefile
 - for deploying, building, and updating
-
-Other:
-- create a template for docs !
-- more examples (k8s.io, jimangel.io, etc)
-- improve all the content after this
-
-## Apply with kustomize (-k) - making it your own
-
-(coming soon)
-
-Kustomize is a manifest generator that is build in to `kubectl` since version 1.14. If you're not familiar with Kustomize, please understand the following:
-
-- `example/base` is where the entire deployment lives. You can take those files out and hand modify to deploy if you wanted (please don't).
-- `example/overlays/hello-world` is where any CHANGES live. This way, kustomize will merge my changes with the core documents before deploying.
-- You can have as many different `overlays` as you'd like while sharing the same `base`
-
-Taking all of the defaults, we will build an example site using a template I built. 
-
-```
-kubectl apply -k examples/overlays/hello-world/
-```
-
-I will add additional examples covering using your own images or setting up git-sync with an SSH key.
-
-## Private repos
-
-(coming soon)
-
-
-
-
-
-## Troubleshooting
-
-```
-## general ##
-# EVENTS: kubectl get events -n <NAMESPACE>
-
-## git-sync ##
-# LOGS: kubectl logs -f <POD NAME> -c git-sync
-# EXEC: kubectl exec -it <POD NAME> -c git-sync /bin/sh
-# DOCKER: docker run --rm -it \
-    -v /tmp/git-data:/tmp/git --entrypoint /bin/sh \
-    k8s.gcr.io/git-sync:v3.1.5
-
-## hugo ##
-# LOGS: kubectl logs -f <POD NAME> -c hugo
-# EXEC: kubectl exec -it <POD NAME> -c hugo /bin/sh
-# DOCKER: docker run --rm -it \
-    -v /tmp/git-data:/tmp/git --entrypoint /bin/sh \
-    klakegg/hugo:0.65.2-ext-alpine
-    
-## nginx ##
-# LOGS: kubectl logs -f <POD NAME> -c nginx
-# EXEC: kubectl exec -it <POD NAME> -c nginx /bin/sh
-# CONFIG: kubectl edit cm nginx-conf -o yaml
-```
-
-## Change version of hugo
-
-Just change the hugo image tag in `examples/base/gitdocs-deployment.yaml`. For example: klakegg/hugo:**0.65.2**-ext-alpine. More info: https://github.com/klakegg/docker-hugo
 
 ## Thanks
 
