@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitdocs
+spec:
+  template:
+    spec:
+      containers:
+      - name: git-sync
+        env:
+        - name: GIT_SYNC_REPO
+          value: https://github.com/kubernetes-sigs/kind.git
+      - name: hugo
+        env:
+        - name: HUGO_VERSION
+          value: "0.60.0"
+        - name: HUGO_DESTINATION
+          value: "../../../target"
+        args: ["while ! ls /src/git-sync/site/config* 1> /dev/null 2>&1; do echo 'No Config' && sleep 1; done && hugo --watch --source=/src/git-sync/site --cleanDestinationDir"]

@@ -49,7 +49,37 @@ kubectl delete -f examples/base/gitdocs-deployment.yaml
 
 ## Going further
 
-Ingress strategies have been purposely excluded from getting started. From here you can create your own ingress and TLS strategy. Also, by abstracting the nginx config, you could always provide the SSL configuration to the pod.
+From here you can create your own ingress and TLS strategy. Also, by abstracting the nginx config, you could always provide the SSL configuration to the pod.
+
+Expose pod with a service:
+
+```
+kubectl expose deployment/gitdocs --port 8080
+```
+
+Sample ingress:
+
+```
+cat <<EOF | kubectl apply -f -
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: gitdocs
+spec:
+  rules:
+    - host: gitdocs.example.com
+      http:
+        paths:
+          - backend:
+              serviceName: gitdocs
+              servicePort: 8080
+            path: /
+#  tls:
+#  - hosts:
+#    - gitdocs.example.com
+#    secretName: gitdocs-cert
+EOF
+```
 
 ## Deploy  with kustomize
 
@@ -59,13 +89,14 @@ Kustomize is a manifest generator that is build in to `kubectl` since version 1.
 - `example/overlays/...` is where any CHANGES live. This way, kustomize will merge the changes with the core documents before deploying.
 - You can have as many different `overlays` as you'd like while sharing the same `base`
 
+**Note:** Depending on the size of the site it might take awhile to for the git clone. Check hugo [logs](#troubleshooting) to know when built.
+
 ### Deploy the official [Kubernetes docs](https://github.com/kubernetes/website)
 
 ```
 kubectl apply -k examples/overlays/kubernetes-website
 sudo kubectl port-forward deployment/gitdocs 80:8080
 kubectl delete -k examples/overlays/kubernetes-website
-
 ```
 
 ### Deploy the official [KinD docs](https://github.com/kubernetes-sigs/kind)
@@ -107,7 +138,7 @@ kubectl delete -k examples/overlays/kind-website
     kubectl create secret generic git-docs-ssh-key --from-file=ssh=/home/<USERNAME>/git-docs-ssh
     ```
 
-1) Edit REPO URL in `static-git-url.yaml` deployment patch.
+1) Edit REPO URL in `patch.yaml` deployment patch.
 
     ```
     vi examples/overlays/private-repo/static-git-url.yaml   
@@ -128,46 +159,44 @@ kubectl delete -k examples/overlays/kind-website
 ## Troubleshooting
 
 ```
-## general ##
-# EVENTS: kubectl get events -n <NAMESPACE>
+NAMESPACE EVENTS: kubectl get events -n <NAMESPACE>
 
+# set POD variable for next commands
 POD=$(kubectl get pod -l name=gitdocs -o jsonpath="{.items[0].metadata.name}")
 
-## git-sync ##
-# LOGS: kubectl logs -f $POD -c git-sync
-# EXEC: kubectl exec -it $POD -c git-sync -- /bin/sh
-# DOCKER: docker run --rm -it \
-    -v /tmp/git-data:/tmp/git --entrypoint /bin/sh \
-    k8s.gcr.io/git-sync:v3.1.5
+# git-sync
+LOGS: kubectl logs -f $POD -c git-sync
+EXEC: kubectl exec -it $POD -c git-sync -- /bin/sh
+DOCKER: docker run --rm -it \
+  -v /tmp/git-data:/tmp/git --entrypoint /bin/sh \
+  k8s.gcr.io/git-sync:v3.1.5
 
-## hugo ##
-# LOGS: kubectl logs -f $POD -c hugo
-# EXEC: kubectl exec -it $POD -c hugo -- /bin/sh
-# DOCKER: docker run --rm -it \
-    -v /tmp/git-data:/tmp/git --entrypoint /bin/sh \
-    klakegg/hugo:0.65.2-ext-alpine
-    
-## nginx ##
-# LOGS: kubectl logs -f $POD -c nginx
-# EXEC: kubectl exec -it $POD -c nginx -- /bin/sh
-# CONFIG: kubectl edit cm nginx-conf -o yaml
+# hugo
+LOGS: kubectl logs -f $POD -c hugo
+EXEC: kubectl exec -it $POD -c hugo -- /bin/sh
+DOCKER: docker run --rm -it \
+  -v /tmp/git-data:/tmp/git --entrypoint /bin/sh \
+  klakegg/hugo:0.65.2-ext-alpine
+
+# nginx
+LOGS: kubectl logs -f $POD -c nginx
+EXEC: kubectl exec -it $POD -c nginx -- /bin/sh
+CONFIG: kubectl edit cm nginx-conf -o yaml
 ```
 
 ## Change version of hugo
 
-If using kustomize (see [example overlays](examples/overlays/)) change the tag using kustomize's `newTag` attribute in `kustomization.yaml`
+If using kustomize (see [example overlays](examples/overlays/)) change the  `HUGO_VERISON` environment variable in `patch.yaml`
 
-Alternately change the hugo image tag in `examples/base/gitdocs-deployment.yaml`. For example: klakegg/hugo:**0.65.2**-ext-alpine. More info: https://github.com/klakegg/docker-hugo
+Alternately change the hugo image tag in `examples/base/gitdocs-deployment.yaml`. For example: klakegg/hugo:**0.65.2**-ext-alpine. More info: https://github.com/klakegg/docker-hugo. **This might cause issues with permissions if using an image <0.70.0.**
 
-## TODOs:
+## TODO:
 
-Priority #1: Security
-- Create network policies to isolate this pod
-- See what limitations are present building images from non-root & scratch
-- More hardening / vuln scanning
-
-Priority #2: Makefile
-- for deploying, building, and updating
+- Security
+  - Create network policies to isolate this pod
+  - More hardening / vuln scanning
+- Makefile
+  - for deploying, building, and updating
 
 ## Thanks
 

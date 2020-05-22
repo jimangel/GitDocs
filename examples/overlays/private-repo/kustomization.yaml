@@ -1,7 +1,4 @@
 bases:
 - ../../base
-images:
-- name: klakegg/hugo
-  newTag: 0.59.1-ext-alpine
 patchesStrategicMerge:
-- static-git-url.yaml
+- patch.yaml

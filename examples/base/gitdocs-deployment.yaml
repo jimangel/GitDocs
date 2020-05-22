@@ -14,9 +14,12 @@ spec:
     spec:
       securityContext:
         fsGroup: 65534
+        runAsUser: 65533
+        runAsGroup: 65534
       containers:
       - name: git-sync
         image: k8s.gcr.io/git-sync:v3.1.6
+        imagePullPolicy: Always
         volumeMounts:
         - name: markdown
           mountPath: /tmp/git
@@ -30,26 +33,29 @@ spec:
           value: "30"
         securityContext:
           allowPrivilegeEscalation: false
-          runAsUser: 65533
-          runAsGroup: 65534
 ##########################
       - name: hugo
-        image: klakegg/hugo:0.70.0-ext-alpine
+        image: klakegg/hugo:edge-ext-alpine
+        imagePullPolicy: Always
+        env:
+        - name: HUGO_VERSION
+          value: "0.69.0"
+        - name: HUGO_DESTINATION
+          value: "../../target"
         volumeMounts:
         - name: markdown
           mountPath: /src
         - name: html
           mountPath: /target
         command: ["/bin/sh","-c"]
-        args: ["while [ ! $(ls /src/git-sync/config*) ]; do echo 'No Config' && sleep 1; done && hugo --watch --source=/src/git-sync/ --cleanDestinationDir"]
+        args: ["while ! ls /src/git-sync/config* 1> /dev/null 2>&1; do echo 'No Config' && sleep 1; done && hugo --watch --source=/src/git-sync/ --cleanDestinationDir"]
         securityContext:
           allowPrivilegeEscalation: false
-          # TODO: CREATE A HUGO BUILD THAT DOESN'T RUN AS ROOT
-          runAsGroup: 65534
 #######################
       - name: nginx
 #        image: nginx
         image: nginxinc/nginx-unprivileged
+        imagePullPolicy: Always
         volumeMounts:
         - name: html
           mountPath: /usr/share/nginx/html
@@ -59,8 +65,6 @@ spec:
           readOnly: true
         securityContext:
           allowPrivilegeEscalation: false
-          runAsUser: 65533
-          runAsGroup: 65534
 ######################
       volumes:
       - name: markdown

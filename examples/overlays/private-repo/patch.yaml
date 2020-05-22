@@ -17,6 +17,10 @@ spec:
           value: "true"
         - name: GIT_KNOWN_HOSTS
           value: "false"
+      - name: hugo
+        env:
+        - name: HUGO_VERSION
+          value: "0.60.0"
       volumes:
       - name: ssh-key-volume
         secret:
