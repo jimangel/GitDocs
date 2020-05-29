@@ -1,7 +1,7 @@
 # GitDocs
 A GitOps approach for hosting self-updating docs on Kubernetes - similar to Netlify.
 
-With GitDocs you can create markdown documents in a central git repository and easily access them on a Kubernetes cluster. The documents will self-update as changes are detected in the git repo.
+With GitDocs you can create markdown documents in a central git repository and easily access them on a Kubernetes cluster. The git sync will occur every 30 seconds and can be set with the `GIT_SYNC_WAIT` environment variable in `examples/base/gitdocs-deployment.yaml`.
 
 GitDocs is not an application, it is the "glue" between 3 microservices ([git-sync](https://github.com/kubernetes/git-sync), [hugo](https://gohugo.io), [nginx](https://www.nginx.com)) that gains superpowers when ran in a pod on Kubernetes.
 
@@ -189,6 +189,24 @@ CONFIG: kubectl edit cm nginx-conf -o yaml
 If using kustomize (see [example overlays](examples/overlays/)) change the  `HUGO_VERISON` environment variable in `patch.yaml`
 
 Alternately change the hugo image tag in `examples/base/gitdocs-deployment.yaml`. For example: klakegg/hugo:**0.65.2**-ext-alpine. More info: https://github.com/klakegg/docker-hugo. **This might cause issues with permissions if using an image <0.70.0.**
+
+## Running offline / air-gapped
+
+There's two ways to run the klakegg/hugo container, with an edge tag or with a version tag:
+
+- edge tag: `klakegg/hugo:edge-ext-alpine`
+  - uses the latest container built by klakegg
+  - the version is specified as a `HUGO_VERISON` environment variable
+  - **the `HUGO_VERISON` is downloaded from the internet when container starts**
+- version tag: `klakegg/hugo:0.65.2-ext-alpine`
+  - uses the specific version in the tag and does not download from the internet
+  - no need to set `HUGO_VERISON` environment variable
+
+The reason GitDocs uses the edge build is because there was a issue running the container with a non-root user. This was [fixed](https://github.com/klakegg/docker-hugo/issues/24) in klakegg/hugo releases `>=0.70.1`.
+
+To run in an air-gapped environment, you can remove the `HUGO_VERISON` environment variable and either use klakegg/hugo releases `>=0.70.1` (ex: `klakegg/hugo:0.70.1-ext-alpine`) or add `runAsUser: 0` in the hugo container's `securityContext:` and use an older tagged version (ex: `klakegg/hugo:0.65.2-ext-alpine`).
+
+There still might be issues running in air-gapped environments if your website content calls any external resources.
 
 ## TODO:
 
