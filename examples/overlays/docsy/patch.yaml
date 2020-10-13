@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitdocs
+spec:
+  template:
+    spec:
+      containers:
+      - name: git-sync
+        env:
+        - name: GIT_SYNC_REPO
+          value: "https://github.com/google/docsy-example.git"
+        - name: GIT_SYNC_DEPTH
+          value: "1"
+      - name: hugo
+        env:
+        - name: HUGO_VERSION
+          value: "0.60.0"

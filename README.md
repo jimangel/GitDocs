@@ -35,10 +35,10 @@ GitDocs is designed to run anywhere, including on-prem, and supports private or 
 1) Use kubectl proxy to preview
 
     ```
-    sudo kubectl port-forward deployment/gitdocs 80:8080
+    kubectl port-forward deployment/gitdocs 8080:8080
     ```
 
-    Open a browser to http://localhost and browse.
+    Open a browser to http://localhost:8080 and browse.
 
 ## Clean up
 
@@ -89,13 +89,19 @@ Kustomize is a manifest generator that is build in to `kubectl` since version 1.
 - `example/overlays/...` is where any CHANGES live. This way, kustomize will merge the changes with the core documents before deploying.
 - You can have as many different `overlays` as you'd like while sharing the same `base`
 
+If you have internet access you can create directly with a url (no need to clone) for example:
+
+```
+kubectl apply -k github.com/jimangel/GitDocs//examples/overlays/kubernetes-website
+```
+
 **Note:** Depending on the size of the site it might take awhile to for the git clone. Check hugo [logs](#troubleshooting) to know when built.
 
 ### Deploy the official [Kubernetes docs](https://github.com/kubernetes/website)
 
 ```
 kubectl apply -k examples/overlays/kubernetes-website
-sudo kubectl port-forward deployment/gitdocs 80:8080
+kubectl port-forward deployment/gitdocs 8080:8080
 kubectl delete -k examples/overlays/kubernetes-website
 ```
 
@@ -103,8 +109,16 @@ kubectl delete -k examples/overlays/kubernetes-website
 
 ```
 kubectl apply -k examples/overlays/kind-website
-sudo kubectl port-forward deployment/gitdocs 80:8080
+kubectl port-forward deployment/gitdocs 8080:8080
 kubectl delete -k examples/overlays/kind-website
+```
+
+### Deploy the [docsy](https://github.com/google/docsy/) example site
+
+```
+kubectl apply -k examples/overlays/docsy
+kubectl port-forward deployment/gitdocs 8080:8080
+kubectl delete -k examples/overlays/docsy
 ```
 
 ### Deploy a private repo via SSH
@@ -152,7 +166,7 @@ kubectl delete -k examples/overlays/kind-website
 
     ```
     kubectl apply -k examples/overlays/private-repo
-    sudo kubectl port-forward deployment/gitdocs 80:8080
+    kubectl port-forward deployment/gitdocs 8080:8080
     kubectl delete -k examples/overlays/private-repo
     ```
 
