@@ -176,6 +176,7 @@ kubectl delete -k examples/overlays/docsy
 NAMESPACE EVENTS: kubectl get events -n <NAMESPACE>
 
 # set POD variable for next commands
+# helm: POD=$(kubectl get pod -l app.kubernetes.io/name=gitdocs -o jsonpath="{.items[0].metadata.name}")
 POD=$(kubectl get pod -l name=gitdocs -o jsonpath="{.items[0].metadata.name}")
 
 # git-sync

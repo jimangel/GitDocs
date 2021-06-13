@@ -65,6 +65,8 @@ spec:
       - name: {{ .Values.nginx.name }}
         image: "{{ .Values.nginx.image.registry }}/{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
         imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.internalServicePort }}
 {{- if .Values.nginx.volumeMounts }}
         volumeMounts:
 {{ toYaml .Values.nginx.volumeMounts | indent 8 }}

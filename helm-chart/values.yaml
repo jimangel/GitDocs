@@ -9,6 +9,9 @@ replicaCount: 1
 # ex: https://github.com/sourcethemes/academic-kickstart.git
 gitSyncRepo: https://github.com/sourcethemes/academic-kickstart.git
 
+# service to container port
+internalServicePort: "8080"
+
 volumes: []
 
 gitSync:
@@ -129,7 +132,8 @@ podSecurityContext:
     runAsGroup: 65534
 
 service:
-  type: ClusterIP
+  type: LoadBalancer
+  # type: ClusterIP
   port: 8080
 
 ingress:
