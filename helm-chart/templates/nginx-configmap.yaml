@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.nginx.config.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gitdocs.labels" . | nindent 4 }}
+{{- if .Values.nginx.config.annotations }}
+  annotations:
+{{ toYaml .Values.nginx.config.annotations | indent 4 }}
+{{- end }}
+data:
+{{- if .Values.nginx.config.entries }}
+{{ toYaml .Values.nginx.config.entries | indent 2 }}
+{{- end }}

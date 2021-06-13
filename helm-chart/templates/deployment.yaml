@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gitdocs.fullname" . }}
+  labels:
+    {{- include "gitdocs.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "gitdocs.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "gitdocs.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "gitdocs.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+############# GIT-SYNC #############
+      - name: {{ .Values.gitSync.name }}
+        image: "{{ .Values.gitSync.image.registry }}/{{ .Values.gitSync.image.repository }}:{{ .Values.gitSync.image.tag }}"
+        imagePullPolicy: {{ .Values.gitSync.image.pullPolicy }}
+{{- if .Values.gitSync.volumeMounts }}
+        volumeMounts:
+{{ toYaml .Values.gitSync.volumeMounts | indent 8 }}
+{{- end }}
+        env:
+        - name: GIT_SYNC_REPO
+          value: {{ .Values.gitSync.env.gitSyncRepo }}
+        - name: GIT_SYNC_DEST
+          value: {{ .Values.gitSync.env.gitSyncDest }}
+        - name: GIT_SYNC_WAIT
+          value: "{{ .Values.gitSync.env.gitSyncWait }}"
+        securityContext:
+      {{- toYaml .Values.gitSync.securityContext | nindent 10 }}
+############# HUGO #############
+      - name: {{ .Values.hugo.name }}
+        image: "{{ .Values.hugo.image.registry }}/{{ .Values.hugo.image.repository }}:{{ .Values.hugo.image.tag }}"
+        imagePullPolicy: {{ .Values.hugo.image.pullPolicy }}
+{{- if .Values.hugo.volumeMounts }}
+        volumeMounts:
+{{ toYaml .Values.hugo.volumeMounts | indent 8 }}
+{{- end }}
+{{- if .Values.hugo.env }}
+        env:
+{{ toYaml .Values.hugo.env | indent 8 }}
+{{- end }}
+        command: ["/bin/sh","-c"]
+        args: ["while ! ls /src/git-sync/config* 1> /dev/null 2>&1; do echo 'No Config' && sleep 1; done && hugo --watch --source=/src/git-sync/ --cleanDestinationDir"]
+        securityContext:
+{{- toYaml .Values.hugo.securityContext | nindent 10 }}
+############# NGINX #############
+      - name: {{ .Values.nginx.name }}
+        image: "{{ .Values.nginx.image.registry }}/{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+        imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+{{- if .Values.nginx.volumeMounts }}
+        volumeMounts:
+{{ toYaml .Values.nginx.volumeMounts | indent 8 }}
+{{- end }}
+{{- if .Values.nginx.env }}
+        env:
+{{ toYaml .Values.nginx.env | indent 8 }}
+{{- end }}
+        securityContext:
+{{- toYaml .Values.nginx.securityContext | nindent 10 }}
+########## SHARED VOL ############
+      volumes:
+      - name: markdown
+        emptyDir: {}
+      - name: html
+        emptyDir: {}
+      - name: nginx-conf
+        configMap:
+          name: {{ .Values.nginx.config.name }} # mounts ConfigMap `nginx-conf` in /etc/nginx
+          items:
+            - key: nginx.conf
+              path: nginx.conf
+{{- if .Values.volumes }}
+{{ toYaml .Values.controller.volumes | indent 6 }}
+{{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,28 @@
+name: gitdocs
+description: A GitOps approach to documentation on Kubernetes.
+apiVersion: v2
+type: application
+icon: https://i.imgur.com/VIe32Ai.png
+home: https://github.com/jimangel/GitDocs
+
+sources:
+  - https://github.com/jimangel/GitDocs/tree/master/helm-chart
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.1
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+appVersion: 1.0.0
+
+keywords:
+  - gitops
+  - docs
+  - gitdocs
+
+maintainers:
+  - name: Jim Angel
+    email: jameswangel@gmail.com
