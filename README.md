@@ -47,6 +47,16 @@ kubectl delete -f examples/base/nginx-configmap.yaml
 kubectl delete -f examples/base/gitdocs-deployment.yaml
 ```
 
+## Deploy with Helm
+
+```
+helm repo add jimangel https://jimangel-charts.storage.googleapis.com
+helm repo update
+
+helm install gitdocs jimangel/gitdocs
+# https://github.com/jimangel/GitDocs/blob/master/helm-chart/values.yaml
+```
+
 ## Going further
 
 From here you can create your own ingress and TLS strategy. Also, by abstracting the nginx config, you could always provide the SSL configuration to the pod.

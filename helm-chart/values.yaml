@@ -4,12 +4,7 @@
 
 replicaCount: 1
 
-# Git repo to sync
-# ex: https://github.com/kubernetes/website.git
-# ex: https://github.com/sourcethemes/academic-kickstart.git
-gitSyncRepo: https://github.com/sourcethemes/academic-kickstart.git
-
-# service to container port
+# Internal service <--> container (nginx) port
 internalServicePort: "8080"
 
 volumes: []
@@ -26,6 +21,9 @@ gitSync:
   - name: markdown
     mountPath: /tmp/git
   env:
+    # Git repo to sync
+    # ex: https://github.com/kubernetes/website.git
+    # ex: https://github.com/sourcethemes/academic-kickstart.git
     gitSyncRepo: https://github.com/sourcethemes/academic-kickstart.git
     gitSyncDest: git-sync
     gitSyncWait: "30"
@@ -138,7 +136,7 @@ service:
   port: 8080
 
 ingress:
-  enabled: true
+  enabled: false
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
