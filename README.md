@@ -55,6 +55,15 @@ helm repo update
 
 helm install gitdocs jimangel/gitdocs
 # https://github.com/jimangel/GitDocs/blob/master/helm-chart/values.yaml
+
+# use a custom website repo
+helm install gitdocs jimangel/gitdocs --set gitSync.env.gitSyncRepo="https://github.com/kubernetes/website.git"
+
+# add an ingress object
+helm install gitdocs jimangel/gitdocs --set gitSync.env.gitSyncRepo="https://github.com/kubernetes/website.git" --set ingress.enabeld="true" --set ingress.hosts[0]="mysite.example.com"
+
+# TODO: some sites are not formatted the same, the "arg" should be more dynamic to account for that.
+# TODO: clean up all kustomize with helm alternatives.
 ```
 
 ## Going further
