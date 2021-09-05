@@ -16,7 +16,7 @@ gitSync:
     repository: git-sync/git-sync
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v3.3.2
+    tag: v3.3.4
   volumeMounts:
   - name: markdown
     mountPath: /tmp/git
@@ -45,7 +45,7 @@ hugo:
     mountPath: /target
   env:
   - name: HUGO_VERSION
-    value: "0.83.1"
+    value: "0.88.0"
   - name: HUGO_DESTINATION
     value: "../../target"
   securityContext:

@@ -18,7 +18,7 @@ spec:
         runAsGroup: 65534
       containers:
       - name: git-sync
-        image: k8s.gcr.io/git-sync/git-sync:v3.3.2
+        image: k8s.gcr.io/git-sync/git-sync:v3.3.4
         imagePullPolicy: Always
         volumeMounts:
         - name: markdown
@@ -39,7 +39,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: HUGO_VERSION
-          value: "0.83.1"
+          value: "0.88.0"
         - name: HUGO_DESTINATION
           value: "../../target"
         volumeMounts:
