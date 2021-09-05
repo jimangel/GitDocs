@@ -3,7 +3,28 @@ entries:
   gitdocs:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2021-06-14T01:00:41.690202696Z"
+    created: "2021-09-05T20:55:21.730962242Z"
+    description: A GitOps approach to documentation on Kubernetes.
+    digest: 5ff8f7cf63d10348b7099cf8d2226fb32069d01adb05430694aa36fb0a2546e9
+    home: https://github.com/jimangel/GitDocs
+    icon: https://i.imgur.com/VIe32Ai.png
+    keywords:
+    - gitops
+    - docs
+    - gitdocs
+    maintainers:
+    - email: jameswangel@gmail.com
+      name: Jim Angel
+    name: gitdocs
+    sources:
+    - https://github.com/jimangel/GitDocs/tree/master/helm-chart
+    type: application
+    urls:
+    - https://jimangel-charts.storage.googleapis.com/gitdocs-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2021-09-05T20:55:21.72998556Z"
     description: A GitOps approach to documentation on Kubernetes.
     digest: 7d0e44f00f658777652ef059bcdde3fef5af0eaf3539f9014a4667fd10709253
     home: https://github.com/jimangel/GitDocs
@@ -22,4 +43,4 @@ entries:
     urls:
     - https://jimangel-charts.storage.googleapis.com/gitdocs-0.1.1.tgz
     version: 0.1.1
-generated: "2021-06-14T01:00:41.688067753Z"
+generated: "2021-09-05T20:55:21.727788319Z"
