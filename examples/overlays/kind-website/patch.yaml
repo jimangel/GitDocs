@@ -11,9 +11,9 @@ spec:
         - name: GIT_SYNC_REPO
           value: https://github.com/kubernetes-sigs/kind.git
       - name: hugo
+        # https://github.com/kubernetes-sigs/kind/blob/main/netlify.toml
+        image: klakegg/hugo:0.101.0-ext-alpine
         env:
-        - name: HUGO_VERSION
-          value: "0.60.0"
         - name: HUGO_DESTINATION
           value: "../../../target"
         args: ["while ! ls /src/git-sync/site/config* 1> /dev/null 2>&1; do echo 'No Config' && sleep 1; done && hugo --watch --source=/src/git-sync/site --cleanDestinationDir"]

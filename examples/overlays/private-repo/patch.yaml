@@ -12,15 +12,13 @@ spec:
           mountPath: "/etc/git-secret"
         env:
         - name: GIT_SYNC_REPO
-          value: "git@bitbucket.org:jimangel/jimangel.io.git"
+          value: "git@github.com:jimangel/howoldiseli.git"
         - name: GIT_SYNC_SSH
           value: "true"
         - name: GIT_KNOWN_HOSTS
           value: "false"
       - name: hugo
-        env:
-        - name: HUGO_VERSION
-          value: "0.60.0"
+        image: klakegg/hugo:0.104.3-ext-alpine
       volumes:
       - name: ssh-key-volume
         secret:

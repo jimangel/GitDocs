@@ -16,7 +16,7 @@ gitSync:
     repository: git-sync/git-sync
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v3.3.4
+    tag: v3.6.2
   volumeMounts:
   - name: markdown
     mountPath: /tmp/git
@@ -24,6 +24,7 @@ gitSync:
     # Git repo to sync
     # ex: https://github.com/kubernetes/website.git
     # ex: https://github.com/sourcethemes/academic-kickstart.git
+    gitSyncBranch: "main"
     gitSyncRepo: https://github.com/sourcethemes/academic-kickstart.git
     gitSyncDest: git-sync
     gitSyncWait: "30"
@@ -37,15 +38,13 @@ hugo:
     repository: klakegg/hugo
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: edge-ext-alpine
+    tag: 0.101.0-ext-alpine
   volumeMounts:
   - name: markdown
     mountPath: /src
   - name: html
     mountPath: /target
   env:
-  - name: HUGO_VERSION
-    value: "0.88.0"
   - name: HUGO_DESTINATION
     value: "../../target"
   securityContext:

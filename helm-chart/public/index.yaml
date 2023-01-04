@@ -3,9 +3,9 @@ entries:
   gitdocs:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2021-09-05T20:55:21.730962242Z"
+    created: "2023-01-03T21:56:16.455484-06:00"
     description: A GitOps approach to documentation on Kubernetes.
-    digest: 5ff8f7cf63d10348b7099cf8d2226fb32069d01adb05430694aa36fb0a2546e9
+    digest: 0f6a238c8488a69a6480e3c1e8f1b793ffbf8b726e6dcab23062d2da9d34e3d2
     home: https://github.com/jimangel/GitDocs
     icon: https://i.imgur.com/VIe32Ai.png
     keywords:
@@ -24,7 +24,7 @@ entries:
     version: 0.1.2
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2021-09-05T20:55:21.72998556Z"
+    created: "2023-01-03T21:56:16.45483-06:00"
     description: A GitOps approach to documentation on Kubernetes.
     digest: 7d0e44f00f658777652ef059bcdde3fef5af0eaf3539f9014a4667fd10709253
     home: https://github.com/jimangel/GitDocs
@@ -43,4 +43,4 @@ entries:
     urls:
     - https://jimangel-charts.storage.googleapis.com/gitdocs-0.1.1.tgz
     version: 0.1.1
-generated: "2021-09-05T20:55:21.727788319Z"
+generated: "2023-01-03T21:56:16.453964-06:00"

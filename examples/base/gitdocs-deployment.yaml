@@ -18,15 +18,17 @@ spec:
         runAsGroup: 65534
       containers:
       - name: git-sync
-        image: k8s.gcr.io/git-sync/git-sync:v3.3.4
+        image: k8s.gcr.io/git-sync/git-sync:v3.6.2
         imagePullPolicy: Always
         volumeMounts:
         - name: markdown
           mountPath: /tmp/git
         env:
         - name: GIT_SYNC_REPO
-          value: https://github.com/sourcethemes/academic-kickstart.git
-#          value: https://github.com/kubernetes/website.git
+          value: https://github.com/wowchemy/starter-hugo-academic.git
+          #value: https://github.com/kubernetes/website.git
+        - name: GIT_SYNC_BRANCH
+          value: main
         - name: GIT_SYNC_DEST
           value: git-sync
         - name: GIT_SYNC_WAIT
@@ -35,11 +37,10 @@ spec:
           allowPrivilegeEscalation: false
 ##########################
       - name: hugo
-        image: klakegg/hugo:edge-ext-alpine
+      # The extended edition is used in those images containing ext in the name. 
+        image: klakegg/hugo:0.101.0-ext-alpine
         imagePullPolicy: Always
         env:
-        - name: HUGO_VERSION
-          value: "0.88.0"
         - name: HUGO_DESTINATION
           value: "../../target"
         volumeMounts:
